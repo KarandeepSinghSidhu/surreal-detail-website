@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+:root {
+  --orange: #F5830A;
+  --orange-dark: #d4700a;
+  --grey: #8C8C8C;
+  --black: #0a0a0a;
+  --white: #ffffff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: #0a0a0a;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { text-decoration: none; color: inherit; }
+
+/* Service panel hover */
+.service-panel:hover .panel-accent { opacity: 1 !important; }
+.service-panel:hover { filter: brightness(1.08); }
