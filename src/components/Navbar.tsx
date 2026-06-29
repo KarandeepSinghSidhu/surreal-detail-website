@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import { btn } from '@/lib/styles'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -28,25 +30,10 @@ export default function Navbar() {
     }}>
       <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 80 }}>
 
-        {/* Logo */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* SD monogram replicating the logo colours */}
-          <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
-            <rect width="38" height="38" rx="4" fill="#111"/>
-            {/* Grey S top */}
-            <path d="M10 10 Q10 6 14 6 L26 6 Q30 6 30 10 L30 14 Q30 18 26 18 L14 18" stroke="#8C8C8C" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
-            {/* Orange D bottom */}
-            <path d="M12 20 L20 20 Q30 20 30 28 L30 28 Q30 34 20 34 L12 34 Z" fill="#F5830A"/>
-            {/* Diagonal slash */}
-            <line x1="28" y1="8" x2="10" y2="34" stroke="#F5830A" strokeWidth="2.5" strokeLinecap="round"/>
-          </svg>
-          <div>
-            <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: '-0.02em', lineHeight: 1 }}>SURREAL</div>
-            <div style={{ fontWeight: 400, fontSize: 11, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.45)', lineHeight: 1, marginTop: 2 }}>DETAILING</div>
-          </div>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
+          <Image src="/logo.png" alt="Surreal Detail" width={48} height={48} style={{ objectFit: 'contain' }} />
         </Link>
 
-        {/* Nav links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
           {links.map((l) => (
             <Link key={l.href} href={l.href}
@@ -55,15 +42,10 @@ export default function Navbar() {
               onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
             >{l.label}</Link>
           ))}
-          <Link href="/book" style={{
-            background: '#F5830A', color: '#fff',
-            padding: '12px 28px', borderRadius: 4,
-            fontSize: 13, fontWeight: 800,
-            letterSpacing: '0.08em', textTransform: 'uppercase',
-            transition: 'background 0.2s',
-          }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#d4700a'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#F5830A'}
+          <Link href="/book"
+            style={{ ...btn.base, ...btn.orange }}
+            onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, btn.orangeHover)}
+            onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, btn.orange)}
           >Get a Free Quote</Link>
         </div>
       </div>
