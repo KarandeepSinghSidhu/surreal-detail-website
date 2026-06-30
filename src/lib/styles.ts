@@ -2,7 +2,7 @@ export const btn = {
   base: {
     display: 'inline-block',
     padding: '12px 28px',
-    borderRadius: 4,
+    borderRadius: 50,
     fontSize: 13,
     fontWeight: 800,
     letterSpacing: '0.08em',

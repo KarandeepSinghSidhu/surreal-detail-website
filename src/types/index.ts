@@ -26,6 +26,7 @@ export interface Booking {
 
 export interface BookingFormData {
   serviceId: string
+  serviceName?: string
   customerName: string
   customerEmail: string
   customerPhone: string

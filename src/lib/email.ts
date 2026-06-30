@@ -40,6 +40,38 @@ export async function sendBookingConfirmation({
   })
 }
 
+export async function sendContactMessage({
+  customerName,
+  customerEmail,
+  phone,
+  message,
+}: {
+  customerName: string
+  customerEmail: string
+  phone?: string
+  message: string
+}) {
+  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {
+    return { id: 'local-dev' }
+  }
+
+  return resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL,
+    to: process.env.RESEND_TO_EMAIL || customerEmail,
+    subject: `New contact form message from ${customerName}`,
+    html: `
+      <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #0f1115; color: #fff; border-radius: 12px;">
+        <h2 style="margin-bottom: 12px;">New Contact Message</h2>
+        <p><strong>Name:</strong> ${customerName}</p>
+        <p><strong>Email:</strong> ${customerEmail}</p>
+        <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
+        <p style="margin-top: 16px;"><strong>Message:</strong></p>
+        <p style="line-height: 1.6;">${message}</p>
+      </div>
+    `,
+  })
+}
+
 export async function sendBookingReminder({
   customerName,
   customerEmail,

@@ -21,3 +21,18 @@ a { text-decoration: none; color: inherit; }
 /* Service panel hover */
 .service-panel:hover .panel-accent { opacity: 1 !important; }
 .service-panel:hover { filter: brightness(1.08); }
+
+/* PPF scroll layout */
+.ppf-sticky {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 900px) {
+  .ppf-sticky {
+    grid-template-columns: 1fr;
+    grid-template-rows: 45vh auto;
+  }
+  .ppf-benefit-panel {
+    padding: 48px 24px 64px !important;
+  }
+}

@@ -15,18 +15,28 @@ function BookingFlow() {
   const [availableSlots, setAvailableSlots] = useState<string[]>([])
   const [selectedSlot, setSelectedSlot] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [form, setForm] = useState({ name: '', email: '', phone: '', notes: '' })
   const [bookingId, setBookingId] = useState('')
 
   useEffect(() => {
-    fetch('/api/services').then((r) => r.json()).then((data) => {
-      setServices(data)
-      const preselect = searchParams.get('service')
-      if (preselect) {
-        const s = data.find((s: Service) => s.id === preselect)
-        if (s) { setSelectedService(s); setStep('datetime') }
+    const loadServices = async () => {
+      try {
+        const res = await fetch('/api/services')
+        const data = await res.json()
+        const list = Array.isArray(data) ? data : []
+        setServices(list)
+        const preselect = searchParams.get('service')
+        if (preselect) {
+          const s = list.find((item: Service) => item.id === preselect || item.name.toLowerCase() === preselect.toLowerCase())
+          if (s) { setSelectedService(s); setStep('datetime') }
+        }
+      } catch {
+        setError('We could not load services right now. Please try again shortly.')
       }
-    })
+    }
+
+    loadServices()
   }, [searchParams])
 
   useEffect(() => {
@@ -34,14 +44,21 @@ function BookingFlow() {
     setLoading(true)
     fetch(`/api/availability?date=${selectedDate}`)
       .then((r) => r.json())
-      .then((d) => { setAvailableSlots(d.slots); setLoading(false) })
+      .then((d) => { setAvailableSlots(d.slots || []); setLoading(false) })
+      .catch(() => { setAvailableSlots([]); setLoading(false) })
   }, [selectedDate])
 
   const submit = async () => {
-    if (!selectedService || !selectedDate || !selectedSlot) return
+    if (!selectedService || !selectedDate || !selectedSlot || !form.name || !form.email || !form.phone) {
+      setError('Please complete your details before confirming the booking.')
+      return
+    }
+
     setLoading(true)
+    setError('')
     const payload: BookingFormData = {
       serviceId: selectedService.id,
+      serviceName: selectedService.name,
       customerName: form.name,
       customerEmail: form.email,
       customerPhone: form.phone,
@@ -49,16 +66,27 @@ function BookingFlow() {
       timeSlot: selectedSlot,
       notes: form.notes,
     }
-    const res = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-    const data = await res.json()
-    setLoading(false)
-    if (res.ok) { setBookingId(data.id); setStep('done') }
+
+    try {
+      const res = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      const data = await res.json()
+      setLoading(false)
+      if (res.ok) {
+        setBookingId(data.id)
+        setStep('done')
+      } else {
+        setError(data.error || 'We could not create the booking. Please try again.')
+      }
+    } catch {
+      setLoading(false)
+      setError('Booking failed. Please try again.')
+    }
   }
 
-  const stepStyle = { padding: '120px 45px', minHeight: '100vh', background: '#0c0c48' }
+  const stepStyle = { padding: '120px 45px', minHeight: '100vh', background: '#000000' }
   const containerStyle = { maxWidth: 680, margin: '0 auto' }
   const cardStyle = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0 40px 0 40px', padding: 32, cursor: 'pointer', transition: 'border-color 0.2s' }
-  const btnStyle = { background: '#1a6ab1', color: '#fff', border: 'none', padding: '14px 32px', borderRadius: '0 40px 0 40px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }
+  const btnStyle = { background: '#666060', color: '#fff', border: 'none', padding: '14px 32px', borderRadius: '0 40px 0 40px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }
   const inputStyle = { width: '100%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '12px 16px', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box' as const }
 
   if (step === 'done') return (
@@ -75,7 +103,7 @@ function BookingFlow() {
   return (
     <div style={stepStyle}>
       <div style={containerStyle}>
-        <p style={{ color: '#1a6ab1', fontSize: 13, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
+        <p style={{ color: '#ffffff', fontSize: 13, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
           Step {['service','datetime','details','confirm'].indexOf(step) + 1} of 4
         </p>
 
@@ -88,7 +116,7 @@ function BookingFlow() {
                   key={s.id}
                   style={cardStyle}
                   onClick={() => { setSelectedService(s); setStep('datetime') }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#1a6ab1')}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#ffffff')}
                   onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -186,6 +214,7 @@ function BookingFlow() {
                 />
               </div>
             </div>
+            {error ? <p style={{ color: '#ffb5b5', marginBottom: 20, fontSize: 14 }}>{error}</p> : null}
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setStep('datetime')} style={{ ...btnStyle, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)' }}>Back</button>
               <button onClick={() => setStep('confirm')} disabled={!form.name || !form.email || !form.phone} style={btnStyle}>Review Booking</button>
@@ -213,6 +242,7 @@ function BookingFlow() {
               ))}
             </div>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, marginBottom: 32 }}>A confirmation will be sent to your email. You'll receive a reminder 24 hours before.</p>
+            {error ? <p style={{ color: '#ffb5b5', marginBottom: 20, fontSize: 14 }}>{error}</p> : null}
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setStep('details')} style={{ ...btnStyle, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)' }}>Back</button>
               <button onClick={submit} disabled={loading} style={btnStyle}>{loading ? 'Booking...' : 'Confirm Booking'}</button>

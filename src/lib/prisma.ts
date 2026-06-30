@@ -6,8 +6,48 @@ const globalForPrisma = globalThis as unknown as {
   prisma: any | undefined
 }
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({ log: ['query'] })
+function getPrismaClient() {
+  if (globalForPrisma.prisma) return globalForPrisma.prisma
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+  if (!process.env.DATABASE_URL) {
+    return null
+  }
+
+  try {
+    const client = new PrismaClient({ log: ['query'] })
+    if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = client
+    return client
+  } catch (error) {
+    console.error('Prisma client initialization failed:', error)
+    return null
+  }
+}
+
+const prismaClient = getPrismaClient()
+
+export const prisma = new Proxy(
+  {},
+  {
+    get(_target, prop) {
+      const client = getPrismaClient()
+      if (!client) {
+        return new Proxy(
+          () => Promise.reject(new Error('Database is not configured.')),
+          {
+            apply() {
+              return Promise.reject(new Error('Database is not configured.'))
+            },
+          }
+        )
+      }
+
+      const value = client[prop as keyof typeof client]
+      if (typeof value === 'function') {
+        return value.bind(client)
+      }
+      return value
+    },
+  }
+) as any
+
+if (prismaClient && process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prismaClient

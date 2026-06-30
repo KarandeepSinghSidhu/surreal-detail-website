@@ -1,6 +1,11 @@
+import Image from 'next/image'
 import Link from 'next/link'
-import ServicesSection from '@/components/ServicesSection'
+import HeroBackground from '@/components/HeroBackground'
 import NewsletterSection from '@/components/NewsletterSection'
+import { SERVICES } from '@/lib/services'
+import { servicePath } from '@/lib/services'
+
+const FEATURED_SERVICES = SERVICES.slice(0, 4)
 
 export default function Home() {
   return (
@@ -25,34 +30,11 @@ function HeroSection() {
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Full-bleed photo placeholder */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'linear-gradient(160deg, #2a2a2a 0%, #0f0f0f 60%, #1a0800 100%)',
-      }}>
-        {/* Simulated dark car detail texture */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `
-            radial-gradient(ellipse 80% 50% at 70% 60%, rgba(245,131,10,0.07) 0%, transparent 60%),
-            radial-gradient(ellipse 40% 60% at 20% 40%, rgba(140,140,140,0.05) 0%, transparent 50%)
-          `,
-        }} />
-        {/* Placeholder label */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: 'rgba(255,255,255,0.06)', fontSize: 13, fontWeight: 500, letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-        }}>Full-bleed hero photo goes here</div>
-        {/* Dark overlay for text legibility */}
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
-      </div>
+      <HeroBackground />
 
-      {/* Content */}
-      <div style={{ position: 'relative', zIndex: 2, padding: '0 24px', maxWidth: 820 }}>
+      <div style={{ position: 'relative', zIndex: 2, padding: '0 24px', maxWidth: '100%' }}>
         <h1 style={{
-          fontSize: 'clamp(44px, 8vw, 96px)',
+          fontSize: 'clamp(44px, 8vw, 62px)',
           fontWeight: 900,
           lineHeight: 1.0,
           letterSpacing: '-0.02em',
@@ -60,32 +42,29 @@ function HeroSection() {
           marginBottom: 24,
           color: '#fff',
         }}>
-          Vehicle Appearance<br />Specialists
+          Premium Vehicle Detailing &<br></br>Paint Protection Auckland
         </h1>
-        <p style={{
-          fontSize: 17, lineHeight: 1.75,
-          color: 'rgba(255,255,255,0.65)',
-          maxWidth: 540, margin: '0 auto 40px',
-        }}>
-          GTechniq certified paint correction, ceramic coating, and PPF installation in Auckland. Your car protected, perfected.
-        </p>
-        <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
+          
           <Link href="/book" style={{
             background: '#F5830A', color: '#fff',
-            padding: '16px 40px', borderRadius: 4,
-            fontWeight: 800, fontSize: 14,
+            padding: '16px 40px', borderRadius: 50,
+            fontWeight: 700, fontSize: 18,
             letterSpacing: '0.08em', textTransform: 'uppercase',
-          }}>Book Now</Link>
-          <Link href="/#services" style={{
-            border: '2px solid rgba(255,255,255,0.3)', color: '#fff',
-            padding: '16px 40px', borderRadius: 4,
-            fontWeight: 700, fontSize: 14,
+            width: '250px',
+            display: 'inline-block', textAlign: 'center',alignSelf: 'center',
+          }}>Book Now </Link>
+          
+          <Link href="/services" style={{
+            border: '2px solid rgba(255,255,255)', color: '#fff',
+            padding: '16px 40px', borderRadius: 50,
+            fontWeight: 700, fontSize: 18,
             letterSpacing: '0.08em', textTransform: 'uppercase',
+            width: '250px',
           }}>Our Services</Link>
         </div>
       </div>
 
-      {/* Bottom fade into black */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, height: 160,
         background: 'linear-gradient(transparent, #0a0a0a)',
@@ -95,72 +74,78 @@ function HeroSection() {
   )
 }
 
-const SERVICE_PANELS = [
-  {
-    label: 'PPF',
-    desc: 'Paint Protection Film — full front, full car, or custom zones.',
-    color: '#1a1a1a',
-  },
-  {
-    label: 'Ceramic Coating',
-    desc: 'GTechniq Crystal Serum Light & Ultra. Multi-year hydrophobic protection.',
-    color: '#141414',
-  },
-  {
-    label: 'Paint Correction',
-    desc: 'Single and two-stage machine polish. Remove swirls, scratches, oxidation.',
-    color: '#111111',
-  },
-  {
-    label: 'Full Detail',
-    desc: 'Complete interior and exterior transformation — the works.',
-    color: '#0d0d0d',
-  },
-]
+const SERVICE_PANELS = FEATURED_SERVICES.map((s) => ({
+  label: s.label,
+  desc: s.shortDesc,
+  image: s.image,
+  href: servicePath(s.slug),
+}))
 
 function ServiceGrid() {
   return (
-    <section id="services" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', minHeight: '60vh' }}>
-      {SERVICE_PANELS.map((panel, i) => (
-        <ServicePanel key={panel.label} panel={panel} index={i} />
-      ))}
+    <section id="services" style={{ background: '#f1f2f4', padding: '100px 24px 120px' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center', marginBottom: 56 }}>
+        <h2 style={{
+          fontSize: 'clamp(36px, 5vw, 52px)',
+          fontWeight: 900,
+          letterSpacing: '-0.02em',
+          textTransform: 'uppercase',
+          color: '#0a0a0a',
+          marginBottom: 24,
+        }}>
+          Car Detailing Services
+        </h2>
+        <p style={{ fontSize: 17, lineHeight: 1.7, color: '#3a3a3a' }}>
+          By using the best materials, products, and techniques, we can achieve the very best result.
+          Whether you choose a car coating, polishing treatment, interior cleaning, or another detailing
+          service, at Vermijl Car Detail your car is treated with the utmost care.
+        </p>
+      </div>
+
+      <div style={{
+        maxWidth: 1400, margin: '0 auto',
+        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24,
+      }}>
+        {SERVICE_PANELS.map((panel) => (
+          <ServicePanel key={panel.label} panel={panel} />
+        ))}
+      </div>
     </section>
   )
 }
 
-function ServicePanel({ panel, index }: { panel: typeof SERVICE_PANELS[0], index: number }) {
+function ServicePanel({ panel }: { panel: typeof SERVICE_PANELS[0] }) {
   return (
-    <div
+    <Link
+      href={panel.href}
+      className="service-panel"
       style={{
         position: 'relative',
         overflow: 'hidden',
-        minHeight: 480,
+        minHeight: 420,
+        borderRadius: 12,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        padding: '32px 28px',
-        borderRight: index < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+        padding: '28px',
         cursor: 'pointer',
-        background: panel.color,
+        background: '#141414',
       }}
     >
-      {/* Photo placeholder */}
+      <Image
+        src={panel.image}
+        alt={panel.label}
+        fill
+        sizes="25vw"
+        style={{ objectFit: 'cover' }}
+      />
+
       <div style={{
         position: 'absolute', inset: 0,
-        background: `linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)`,
+        background: 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.75) 100%)',
         zIndex: 1,
       }} />
-      <div style={{
-        position: 'absolute', inset: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: 'rgba(255,255,255,0.07)', fontSize: 11, letterSpacing: '0.1em',
-        textTransform: 'uppercase', flexDirection: 'column', gap: 8,
-      }}>
-        <div style={{ fontSize: 28, opacity: 0.4 }}>📸</div>
-        {panel.label} photo
-      </div>
 
-      {/* Orange accent top bar — shown on hover via inline trick */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 3,
         background: '#F5830A', zIndex: 3,
@@ -168,21 +153,14 @@ function ServicePanel({ panel, index }: { panel: typeof SERVICE_PANELS[0], index
         transition: 'opacity 0.3s',
       }} className="panel-accent" />
 
-      {/* Text */}
-      <div style={{ position: 'relative', zIndex: 2 }}>
-        <div style={{
-          fontSize: 12, fontWeight: 700, letterSpacing: '0.12em',
-          color: '#F5830A', textTransform: 'uppercase', marginBottom: 12,
-        }}>/ {panel.label}</div>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.65, marginBottom: 20 }}>
-          {panel.desc}
-        </p>
-        <Link href="/book" style={{
-          fontSize: 12, fontWeight: 700, color: '#F5830A',
-          letterSpacing: '0.08em', textTransform: 'uppercase',
-        }}>Book →</Link>
+      <div style={{
+        position: 'relative', zIndex: 2,
+        fontSize: 28, fontWeight: 800, color: '#fff',
+        lineHeight: 1.15,
+      }}>
+        {panel.label}
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -196,7 +174,6 @@ function BottomSection() {
 
   return (
     <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', minHeight: 480 }}>
-      {/* About */}
       <div style={{ background: '#111111', padding: '64px 48px', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ width: 40, height: 3, background: '#F5830A', marginBottom: 28 }} />
         <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', marginBottom: 20 }}>About Us</h2>
@@ -206,14 +183,16 @@ function BottomSection() {
         <p style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.8, fontSize: 14, marginBottom: 32 }}>
           As a GTechniq Certified Installer with formal PPF training, we use only Koch Chemie, CarPro, P&S, GTechniq, and Rupes.
         </p>
-        <div style={{ display: 'flex', gap: 20 }}>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
           {['200+ Cars', '5★ Rating', 'GTechniq'].map((b) => (
             <div key={b} style={{ fontSize: 11, color: '#F5830A', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{b}</div>
           ))}
+          <Link href="/about" style={{ fontSize: 12, fontWeight: 700, color: '#F5830A', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Learn more →
+          </Link>
         </div>
       </div>
 
-      {/* FAQ */}
       <div style={{ background: '#0f0f0f', padding: '64px 48px', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ width: 40, height: 3, background: '#8C8C8C', marginBottom: 28 }} />
         <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', marginBottom: 32 }}>
@@ -229,7 +208,6 @@ function BottomSection() {
         </div>
       </div>
 
-      {/* Book CTA */}
       <div style={{
         background: '#F5830A',
         padding: '64px 48px',
