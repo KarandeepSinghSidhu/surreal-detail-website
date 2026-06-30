@@ -41,9 +41,9 @@ export default function ServicesDropdown() {
   }, [])
 
   const linkStyle: React.CSSProperties = {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 600,
-    color: 'rgba(255,255,255)',
+    color: 'rgba(255,255,255,0.92)',
     letterSpacing: '0.06em',
     textTransform: 'uppercase',
     transition: 'color 0.2s',
@@ -54,6 +54,8 @@ export default function ServicesDropdown() {
     display: 'flex',
     alignItems: 'center',
     gap: 6,
+    position: 'relative',
+    paddingBottom: 6,
   }
 
   return (
@@ -65,11 +67,37 @@ export default function ServicesDropdown() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         style={linkStyle}
-        onMouseEnter={(e) => { e.currentTarget.style.color = '#F5830A' }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255)' }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = '#fff' }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.92)' }}
       >
-        Services
-        <span aria-hidden="true" style={{ fontSize: 18, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>⌄</span>
+        <span style={{ position: 'relative', display: 'inline-block' }}>
+          Services
+          <span style={{
+            position: 'absolute',
+            left: 0,
+            bottom: -6,
+            width: '100%',
+            height: 1,
+            background: '#fff',
+            opacity: open ? 1 : 0,
+            transition: 'opacity 0.2s',
+          }} />
+        </span>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          style={{
+            display: 'block',
+            transform: open ? 'rotate(180deg)' : 'none',
+            transition: 'transform 0.2s',
+          }}
+        >
+          <path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
 
       {open && (

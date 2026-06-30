@@ -47,18 +47,30 @@ export async function POST(req: NextRequest) {
     include: { service: true },
   })
 
+  const serviceNameForEmail = booking.service?.name || serviceName || service.id
+
+  let emailSent = true
+  let emailError: string | null = null
   try {
-    await sendBookingConfirmation({
+    const result = await sendBookingConfirmation({
       customerName,
       customerEmail,
-      serviceName: booking.service.name,
+      serviceName: serviceNameForEmail,
       date: format(bookingDate, 'EEEE, MMMM d yyyy'),
       timeSlot,
       bookingId: booking.id,
     })
+
+    if (result && typeof result === 'object' && 'error' in result) {
+      emailSent = false
+      emailError = String(result.error)
+      console.error('Email failed:', result.error)
+    }
   } catch (e) {
+    emailSent = false
+    emailError = e instanceof Error ? e.message : 'Unknown email error'
     console.error('Email failed:', e)
   }
 
-  return NextResponse.json(booking, { status: 201 })
+  return NextResponse.json({ ...booking, emailSent, emailError }, { status: 201 })
 }

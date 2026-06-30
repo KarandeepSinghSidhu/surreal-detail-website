@@ -1,7 +1,8 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import HeroBackground from '@/components/HeroBackground'
-import NewsletterSection from '@/components/NewsletterSection'
 import { SERVICES } from '@/lib/services'
 import { servicePath } from '@/lib/services'
 
@@ -13,7 +14,6 @@ export default function Home() {
       <HeroSection />
       <ServiceGrid />
       <BottomSection />
-      <NewsletterSection />
     </main>
   )
 }
@@ -95,10 +95,10 @@ function ServiceGrid() {
         }}>
           Car Detailing Services
         </h2>
-        <p style={{ fontSize: 17, lineHeight: 1.7, color: '#3a3a3a' }}>
+        <p style={{ fontSize: 16, lineHeight: 1.7, color: '#3a3a3a' }}>
           By using the best materials, products, and techniques, we can achieve the very best result.
           Whether you choose a car coating, polishing treatment, interior cleaning, or another detailing
-          service, at Vermijl Car Detail your car is treated with the utmost care.
+          service, at Surreal Detail your car is treated with the utmost care.
         </p>
       </div>
 
@@ -130,6 +130,31 @@ function ServicePanel({ panel }: { panel: typeof SERVICE_PANELS[0] }) {
         padding: '28px',
         cursor: 'pointer',
         background: '#141414',
+        transform: 'translateY(0)',
+        transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+        boxShadow: '0 12px 30px rgba(0,0,0,0.12)',
+      }}
+      onMouseEnter={(e) => {
+        const target = e.currentTarget as HTMLAnchorElement
+        target.style.transform = 'translateY(-8px)'
+        target.style.boxShadow = '0 18px 40px rgba(0,0,0,0.24)'
+        const overlay = target.querySelector('[data-overlay]') as HTMLDivElement | null
+        if (overlay) overlay.style.background = 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.9) 100%)'
+        const detail = target.querySelector('[data-description]') as HTMLDivElement | null
+        if (detail) detail.style.opacity = '1'
+        const title = target.querySelector('[data-title]') as HTMLDivElement | null
+        if (title) title.style.transform = 'translateY(-8px)'
+      }}
+      onMouseLeave={(e) => {
+        const target = e.currentTarget as HTMLAnchorElement
+        target.style.transform = 'translateY(0)'
+        target.style.boxShadow = '0 12px 30px rgba(0,0,0,0.12)'
+        const overlay = target.querySelector('[data-overlay]') as HTMLDivElement | null
+        if (overlay) overlay.style.background = 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.75) 100%)'
+        const detail = target.querySelector('[data-description]') as HTMLDivElement | null
+        if (detail) detail.style.opacity = '0'
+        const title = target.querySelector('[data-title]') as HTMLDivElement | null
+        if (title) title.style.transform = 'translateY(0)'
       }}
     >
       <Image
@@ -140,11 +165,15 @@ function ServicePanel({ panel }: { panel: typeof SERVICE_PANELS[0] }) {
         style={{ objectFit: 'cover' }}
       />
 
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.75) 100%)',
-        zIndex: 1,
-      }} />
+      <div
+        data-overlay
+        style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.75) 100%)',
+          zIndex: 1,
+          transition: 'background 0.25s ease',
+        }}
+      />
 
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 3,
@@ -153,12 +182,31 @@ function ServicePanel({ panel }: { panel: typeof SERVICE_PANELS[0] }) {
         transition: 'opacity 0.3s',
       }} className="panel-accent" />
 
-      <div style={{
-        position: 'relative', zIndex: 2,
-        fontSize: 28, fontWeight: 800, color: '#fff',
-        lineHeight: 1.15,
-      }}>
-        {panel.label}
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div
+          data-title
+          style={{
+            fontSize: 28, fontWeight: 800, color: '#fff',
+            lineHeight: 1.15,
+            transition: 'transform 0.25s ease',
+          }}
+        >
+          {panel.label}
+        </div>
+        <div
+          data-description
+          style={{
+            fontSize: 14,
+            lineHeight: 1.6,
+            color: 'rgba(255,255,255,0.9)',
+            opacity: 0,
+            transform: 'translateY(12px)',
+            transition: 'opacity 0.25s ease, transform 0.25s ease',
+            maxWidth: 250,
+          }}
+        >
+          {panel.desc}
+        </div>
       </div>
     </Link>
   )

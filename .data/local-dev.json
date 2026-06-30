@@ -1,0 +1,25 @@
+{
+  "services": [
+    {
+      "id": "ppf",
+      "name": "Paint Protection Film",
+      "description": "Booked through the website",
+      "duration": 60,
+      "price": 0,
+      "category": "detailing"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "bdcbad50-e13a-4905-b46a-a3ea259897d8",
+      "serviceId": "ppf",
+      "customerName": "Karna",
+      "customerEmail": "212345",
+      "customerPhone": "2345",
+      "date": "2026-07-30T00:00:00.000Z",
+      "timeSlot": "2:00 PM",
+      "notes": ""
+    }
+  ],
+  "subscribers": []
+}

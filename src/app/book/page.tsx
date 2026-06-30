@@ -18,6 +18,8 @@ function BookingFlow() {
   const [error, setError] = useState('')
   const [form, setForm] = useState({ name: '', email: '', phone: '', notes: '' })
   const [bookingId, setBookingId] = useState('')
+  const [paymentRequired, setPaymentRequired] = useState(false)
+  const [emailNotice, setEmailNotice] = useState('')
 
   useEffect(() => {
     const loadServices = async () => {
@@ -48,6 +50,26 @@ function BookingFlow() {
       .catch(() => { setAvailableSlots([]); setLoading(false) })
   }, [selectedDate])
 
+  useEffect(() => {
+    const success = searchParams.get('success')
+    const canceled = searchParams.get('canceled')
+    const bookingIdParam = searchParams.get('bookingId')
+
+    if (bookingIdParam) {
+      setBookingId(bookingIdParam)
+    }
+
+    if (success === '1' || success === 'true') {
+      setStep('done')
+      setPaymentRequired(false)
+      setEmailNotice('Payment completed. Your booking is confirmed.')
+    } else if (canceled === '1' || canceled === 'true') {
+      setStep('done')
+      setPaymentRequired(false)
+      setEmailNotice('Payment was canceled, but your booking request is still saved.')
+    }
+  }, [searchParams])
+
   const submit = async () => {
     if (!selectedService || !selectedDate || !selectedSlot || !form.name || !form.email || !form.phone) {
       setError('Please complete your details before confirming the booking.')
@@ -73,6 +95,24 @@ function BookingFlow() {
       setLoading(false)
       if (res.ok) {
         setBookingId(data.id)
+        setEmailNotice(data.emailSent === false ? `Email delivery issue: ${data.emailError || 'please check your Resend configuration.'}` : '')
+        setPaymentRequired(true)
+        const checkoutRes = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bookingId: data.id,
+            amount: Number(selectedService?.price ?? 5000),
+            serviceName: selectedService?.name,
+          }),
+        })
+        const checkoutData = await checkoutRes.json()
+        if (checkoutRes.ok && checkoutData.url) {
+          window.location.href = checkoutData.url
+          return
+        }
+        setPaymentRequired(false)
+        setEmailNotice(checkoutData.reason || 'Payment setup is currently unavailable, but your booking has been created.')
         setStep('done')
       } else {
         setError(data.error || 'We could not create the booking. Please try again.')
@@ -94,7 +134,8 @@ function BookingFlow() {
       <div style={{ ...containerStyle, textAlign: 'center', paddingTop: 80 }}>
         <div style={{ fontSize: 64, marginBottom: 24 }}>✓</div>
         <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16 }}>You're booked.</h1>
-        <p style={{ color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: 8 }}>Confirmation sent to {form.email}</p>
+        <p style={{ color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: 8 }}>{paymentRequired ? 'Payment is being processed.' : `Confirmation sent to ${form.email}`}</p>
+        {emailNotice ? <p style={{ color: '#ffb5b5', marginBottom: 12, fontSize: 14 }}>{emailNotice}</p> : null}
         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>Booking ID: {bookingId}</p>
       </div>
     </div>

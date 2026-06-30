@@ -1,6 +1,45 @@
 import { Resend } from 'resend'
 
-export const resend = new Resend(process.env.RESEND_API_KEY)
+const resendApiKey = process.env.RESEND_API_KEY
+const configuredFromEmail = process.env.RESEND_FROM_EMAIL?.trim()
+const fallbackFromEmail = process.env.RESEND_FALLBACK_FROM_EMAIL?.trim() || 'onboarding@resend.dev'
+
+export const resend = resendApiKey ? new Resend(resendApiKey) : null
+
+function getResendSenderEmail() {
+  if (configuredFromEmail && configuredFromEmail !== 'your-resend-email' && !configuredFromEmail.includes('surrealdetail.co.nz')) {
+    return configuredFromEmail
+  }
+
+  return fallbackFromEmail
+}
+
+function getResendConfigError() {
+  if (!resendApiKey || resendApiKey === 'your-resend-api-key') {
+    return 'Resend is not configured. Set RESEND_API_KEY to a real API key from Resend.'
+  }
+
+  const senderEmail = getResendSenderEmail()
+  if (!senderEmail || senderEmail === 'your-resend-email') {
+    return 'Resend sender email is not configured. Set RESEND_FROM_EMAIL to a verified sender address.'
+  }
+
+  return null
+}
+
+async function sendEmail(payload: Record<string, unknown>) {
+  const configError = getResendConfigError()
+  if (configError) {
+    return { error: configError }
+  }
+
+  if (!resend) {
+    return { error: 'Resend client is not available.' }
+  }
+
+  const senderEmail = getResendSenderEmail()
+  return resend.emails.send({ ...payload, from: senderEmail } as never)
+}
 
 export async function sendBookingConfirmation({
   customerName,
@@ -17,8 +56,7 @@ export async function sendBookingConfirmation({
   timeSlot: string
   bookingId: string
 }) {
-  return resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL!,
+  return sendEmail({
     to: customerEmail,
     subject: `Booking Confirmed — ${serviceName}`,
     html: `
@@ -55,8 +93,7 @@ export async function sendContactMessage({
     return { id: 'local-dev' }
   }
 
-  return resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL,
+  return sendEmail({
     to: process.env.RESEND_TO_EMAIL || customerEmail,
     subject: `New contact form message from ${customerName}`,
     html: `
@@ -85,8 +122,7 @@ export async function sendBookingReminder({
   date: string
   timeSlot: string
 }) {
-  return resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL!,
+  return sendEmail({
     to: customerEmail,
     subject: `Reminder: Your detailing appointment is tomorrow`,
     html: `
@@ -116,8 +152,7 @@ export async function sendMarketingEmail({
 }) {
   const results = await Promise.allSettled(
     subscribers.map((email) =>
-      resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL!,
+      sendEmail({
         to: email,
         subject,
         html,
